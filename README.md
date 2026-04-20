@@ -20,3 +20,6 @@ Because movement and interactions are fully deterministic, experimentation becom
 **Use Case Diagram**
 <img width="625" height="603" alt="Use case diagram" src="https://github.com/user-attachments/assets/b118aad4-c507-4af8-ad8f-2e1ecb9874c3" />
 
+**UML Class Diagram**
+<img width="999" height="778" alt="Screenshot 2026-04-20 122146" src="https://github.com/user-attachments/assets/95fe7230-b4eb-47a3-afc4-6dda821a2e32" />
+
