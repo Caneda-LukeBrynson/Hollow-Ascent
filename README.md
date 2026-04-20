@@ -6,3 +6,13 @@ This project is a 2D puzzle-platformer built around action replay and temporal m
 
 ## Core Idea
 The main mechanic centers on recording actions as a sequence of PlayerAction objects. After a delay, a Shadow replays those exact actions, allowing the player to cooperate with their past self. Solving puzzles requires careful planning, timing, and positioning across multiple iterations.
+
+## Game Mechanics
+
+The gameplay is built on a deterministic, tick-based system where every action is discrete and reproducible. Each player input—movement, interaction, or waiting—is stored in a structured action list. This creates a full “run history” that can be replayed precisely by Shadow entities.
+
+Shadows function as delayed echoes of the player. They do not think independently but instead execute the recorded action sequence frame-by-frame. This allows players to treat their past self as a puzzle element—using previous movements to hold buttons, trigger switches, or block hazards while the current player advances elsewhere.
+
+The environment is designed around these interactions. Grid-based levels contain tiles, obstacles, and interactive objects such as buttons and doors. Buttons can be activated by either the player or shadows, often requiring synchronization between multiple timelines. A single action in one moment may unlock or restrict possibilities in a later iteration.
+
+Because movement and interactions are fully deterministic, experimentation becomes a core part of problem-solving. Players are encouraged to fail, refine their action sequence, and replay levels until an optimal timeline is constructed. Success is achieved not through reflexes, but through understanding cause-and-effect across time, effectively “solving” the level as a sequence of interdependent actions.
