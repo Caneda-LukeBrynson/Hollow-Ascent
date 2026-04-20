@@ -16,3 +16,7 @@ Shadows function as delayed echoes of the player. They do not think independentl
 The environment is designed around these interactions. Grid-based levels contain tiles, obstacles, and interactive objects such as buttons and doors. Buttons can be activated by either the player or shadows, often requiring synchronization between multiple timelines. A single action in one moment may unlock or restrict possibilities in a later iteration.
 
 Because movement and interactions are fully deterministic, experimentation becomes a core part of problem-solving. Players are encouraged to fail, refine their action sequence, and replay levels until an optimal timeline is constructed. Success is achieved not through reflexes, but through understanding cause-and-effect across time, effectively “solving” the level as a sequence of interdependent actions.
+
+**Use Case Diagram**
+<img width="625" height="603" alt="Use case diagram" src="https://github.com/user-attachments/assets/b118aad4-c507-4af8-ad8f-2e1ecb9874c3" />
+
