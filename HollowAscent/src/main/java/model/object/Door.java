@@ -7,7 +7,7 @@ public class Door{
      public Door(Position position) {
 
         this.position = position;
-        this.open = true; //door starts open
+        this.open = true; 
 
     }
 
