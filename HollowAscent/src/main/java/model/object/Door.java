@@ -1,4 +1,3 @@
-import javax.swing.text.Position;
 
 public class Door{
 
@@ -8,7 +7,7 @@ public class Door{
      public Door(Position position) {
 
         this.position = position;
-        this.open = false;
+        this.open = true; //door starts open
 
     }
 
