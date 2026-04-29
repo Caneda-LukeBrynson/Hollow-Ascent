@@ -16,4 +16,6 @@ public class Goal{
 
         return this.position.equals(p)
     }
+
+    
 }
