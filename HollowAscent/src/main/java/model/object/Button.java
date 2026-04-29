@@ -13,7 +13,7 @@ public class Button {
     public void onStep() {
 
         pressed = true;
-        linkedDoor.open();
+        linkedDoor.close(); // change was done here
     }
 
     public Position getPosition() { 
