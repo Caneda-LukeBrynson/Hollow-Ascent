@@ -12,10 +12,10 @@ public class Goal{
         return position;
     }
 
-    private boolean isReached(Position p) {
+    public boolean isReached(Position p) {
 
-        return this.position.equals(p)
-    }
+        return this.position.equals(p);
+    } //changes were made here
 
     
 }
