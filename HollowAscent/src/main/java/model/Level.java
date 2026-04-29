@@ -2,19 +2,20 @@ import java.util.List;
 
 public class Level{
 
-    private Title[][] grid;
+    private Tile[][] grid; //changes were made here  
     private List<Button> buttons;
     private List<Door> doors;
     private List<Ladder> ladders;
     private Goal goal;
 
-    public Level(Tile[][] grid, List<Button> buttons, List<Door> doors, Goal goal) {
+    public Level(Tile[][] grid, List<Button> buttons, List<Ladder> ladders, List<Door> doors, Goal goal) {
         this.grid = grid;
         this.buttons = buttons;
         this.doors = doors;
+        this.ladders = ladders;
         this.goal = goal;
 
-    }
+    } //changes were made here
 
     public Tile[][] getGrid() { 
         
@@ -47,7 +48,9 @@ public class Level{
     }
 
     public boolean isGoalReached(Position pos) {
-        
+
         return goal.isReached(pos);
     }
+
+    
 }
