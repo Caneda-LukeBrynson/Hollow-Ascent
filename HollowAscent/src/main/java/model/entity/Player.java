@@ -1,20 +1,68 @@
-public class Player extends Entity {
+package model.entity;
+
+import model.ActionType;
+import model.PlayerAction;
+import model.Position;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Player {
+    private Position position;
     private List<PlayerAction> actionHistory;
 
     public Player(Position position) {
-        super(position);
+
+        this.position = position;
         this.actionHistory = new ArrayList<>();
     }
 
-    @Override
+    public Position getPosition() {
+
+        return position;
+    }
+
+    public void setPosition(Position position) {
+
+        this.position = position;
+    }
+
     public void move(ActionType action) {
-        // logic to be added in Week 2
+
+        switch (action) {
+
+            case UP:
+                position = new Position(position.getX(), position.getY() - 1);
+                break;
+
+            case DOWN:
+                position = new Position(position.getX(), position.getY() + 1);
+                break;
+
+            case LEFT:
+                position = new Position(position.getX() - 1, position.getY());
+                break;
+
+            case RIGHT:
+                position = new Position(position.getX() + 1, position.getY());
+                break;
+
+            default:
+                break;
+        }
     }
 
     public void recordAction(ActionType action) {
-        actionHistory.add(new PlayerAction(action, System.currentTimeMillis()));
+
+        actionHistory.add(new PlayerAction(action, (int) System.currentTimeMillis()));
     }
 
-    public List<PlayerAction> getActionHistory() { return actionHistory; }
-    public void clearHistory() { actionHistory.clear(); }
+    public List<PlayerAction> getActionHistory() {
+
+        return actionHistory;
+    }
+
+    public void clearHistory() {
+        
+        actionHistory.clear();
+    }
 }
