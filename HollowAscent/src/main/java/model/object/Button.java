@@ -1,4 +1,9 @@
+package model.object;
+
+import model.Position;
+
 public class Button {
+
     private Position position;
     private Door linkedDoor;
     private boolean pressed;
@@ -8,25 +13,36 @@ public class Button {
         this.position = position;
         this.linkedDoor = linkedDoor;
         this.pressed = false;
+
     }
 
     public void onStep() {
 
         pressed = true;
-        linkedDoor.close(); // change was done here
+        if (linkedDoor != null) linkedDoor.open();
+
     }
 
-    public Position getPosition() { 
+    // change here
+    public void reset() {
+
+        pressed = false;
+        if (linkedDoor != null) linkedDoor.close();
+
+    }
+
+    public Position getPosition() {
+
+        return position;
+    }
+
+    public boolean isPressed() {
+
+        return pressed;
+    }
+
+    public Door getLinkedDoor() {
         
-        return position; 
-    }
-
-    public boolean isPressed() { 
-        
-        return pressed; 
-    }
-
-    public Door getLinkedDoor() { 
-        return linkedDoor; 
+        return linkedDoor;
     }
 }
