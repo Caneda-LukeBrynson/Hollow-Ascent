@@ -23,7 +23,6 @@ public class Button {
 
     }
 
-    // change here
     public void reset() {
 
         pressed = false;
