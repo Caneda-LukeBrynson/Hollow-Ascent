@@ -2,20 +2,21 @@ package model;
 
 public class PlayerAction {
     private ActionType type;
-    private long timestamp;
+    private int tick;
 
-    public PlayerAction(ActionType type, long timestamp) {
+    public PlayerAction(ActionType type, int tick) {
+
         this.type = type;
-        this.timestamp = timestamp;
+        this.tick = tick;
     }
 
-    public ActionType getType() { 
-        
-        return type; 
+    public ActionType getType() {
+
+        return type;
     }
 
-    public long getTimestamp() { 
+    public int getTick() {
         
-        return timestamp; 
+        return tick;
     }
 }
