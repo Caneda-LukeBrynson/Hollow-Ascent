@@ -1,3 +1,8 @@
+package engine;
+
+import model.Level;
+import java.util.List;
+
 public class LevelManager {
 
     private List<Level> levels;
