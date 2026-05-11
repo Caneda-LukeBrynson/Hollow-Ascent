@@ -1,3 +1,7 @@
+package model.object;
+
+import model.Position;
+
 public class Ladder{
 
     private Position top;
