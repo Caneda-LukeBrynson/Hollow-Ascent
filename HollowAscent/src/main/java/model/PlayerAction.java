@@ -1,3 +1,5 @@
+package model;
+
 public class PlayerAction {
     private ActionType type;
     private long timestamp;
@@ -7,6 +9,13 @@ public class PlayerAction {
         this.timestamp = timestamp;
     }
 
-    public ActionType getType() { return type; }
-    public long getTimestamp() { return timestamp; }
+    public ActionType getType() { 
+        
+        return type; 
+    }
+
+    public long getTimestamp() { 
+        
+        return timestamp; 
+    }
 }
