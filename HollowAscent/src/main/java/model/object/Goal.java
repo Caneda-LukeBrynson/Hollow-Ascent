@@ -1,3 +1,7 @@
+package model.object;
+
+import model.Position;
+
 public class Goal{
 
     private Position position;
