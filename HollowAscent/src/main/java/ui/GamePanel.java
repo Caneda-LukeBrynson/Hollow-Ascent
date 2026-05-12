@@ -85,13 +85,14 @@ public class GamePanel extends JPanel {
 
     private void loadImages() {
 
+        loadImage("BACKGROUND",  "background.jpg");
         loadImage("WALL",        "wall.png");
         loadImage("FLOOR",       "floor.png");
-        loadImage("AREA",        "area.png");
+        loadImage("TUNNEL",      "tunnel.jpg");
         loadImage("GOAL",        "Goal.png");
         loadImage("LADDER",      "ladder.png");
-        loadImage("DOOR_CLOSED", "gate_closed.png");
-        loadImage("DOOR_OPEN",   "gate_opened.png");
+        loadImage("DOOR_CLOSED", "gate_opened.png");
+        loadImage("DOOR_OPEN",   "gate_closed.png");
         loadImage("BUTTON_OFF",  "button.png");
         loadImage("BUTTON_ON",   "button.png");
         loadImage("PLAYER",      "player.png");
@@ -127,7 +128,6 @@ public class GamePanel extends JPanel {
 
             e.printStackTrace();
         }
-
 
         return new File("assets");
     }
@@ -237,10 +237,15 @@ public class GamePanel extends JPanel {
 
         super.paintComponent(g);
 
-        Level level = game.getCurrentLevel();
+        Image bg = images.get("BACKGROUND");
+        if (bg != null) {
+            g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
+        } else {
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, getWidth(), getHeight());
+        }
 
-        g.setColor(Color.BLACK);
-        g.fillRect(0, 0, getWidth(), getHeight());
+        Level level = game.getCurrentLevel();
 
         if (level == null || level.getGrid() == null) {
 
@@ -280,12 +285,14 @@ public class GamePanel extends JPanel {
                         break;
 
                     case "FLOOR":
-                    case "PLAYER_START":
                         drawTile(g, "FLOOR", px, py, tileSize, new Color(210, 180, 140));
                         break;
 
+                    case "PLAYER_START":
+                        drawTile(g, "TUNNEL", px, py, tileSize, new Color(50, 50, 50));
+                        break;
+
                     case "AREA":
-                        drawTile(g, "AREA", px, py, tileSize, new Color(30, 30, 50));
                         break;
 
                     case "GOAL":
@@ -309,7 +316,7 @@ public class GamePanel extends JPanel {
                         }
 
                         drawTile(g, open ? "DOOR_CLOSED" : "DOOR_OPEN", px, py, tileSize,
-                        open ? new Color(0, 210, 210) : new Color(70, 100, 180));
+                                open ? new Color(0, 210, 210) : new Color(70, 100, 180));
                         break;
 
                     }
@@ -328,19 +335,17 @@ public class GamePanel extends JPanel {
                         }
 
                         drawTile(g, pressed ? "BUTTON_ON" : "BUTTON_OFF", px, py, tileSize,
-                        pressed ? new Color(255, 220, 0) : new Color(180, 30, 30));
+                                pressed ? new Color(255, 220, 0) : new Color(180, 30, 30));
                         break;
 
                     }
 
                     default:
-                        drawTile(g, "AREA", px, py, tileSize, new Color(30, 30, 50));
                         break;
 
                 }
             }
         }
-
 
         Player player = game.getPlayer();
 
@@ -405,7 +410,6 @@ public class GamePanel extends JPanel {
             }
         }
 
-
         if (game.isGameOver()) {
 
             g.setColor(new Color(0, 0, 0, 180));
@@ -429,7 +433,6 @@ public class GamePanel extends JPanel {
             g.drawString(sub, getWidth() / 2 - sw / 2, getHeight() / 2 + fontSize / 2);
         }
 
-    
         if (game.isLevelComplete()) {
 
             g.setColor(new Color(0, 0, 0, 180));
@@ -449,7 +452,7 @@ public class GamePanel extends JPanel {
 
             String sub = "Click 'Next Level' to continue";
             int sw = g.getFontMetrics().stringWidth(sub);
-            
+
             g.drawString(sub, getWidth() / 2 - sw / 2, getHeight() / 2 + fontSize / 2);
         }
     }
