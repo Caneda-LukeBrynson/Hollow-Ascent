@@ -14,14 +14,22 @@ public class Level {
     private List<Ladder> ladders;
     private Goal goal;
     private Position playerSpawn;
+    private int shadowDelay;
 
-    public Level(Tile[][] grid, List<Button> buttons, List<Ladder> ladders, List<Door> doors, Goal goal) {
+    public Level(Tile[][] grid, List<Button> buttons, List<Ladder> ladders, List<Door> doors, Goal goal, int shadowDelay) {
         this.grid = grid;
         this.buttons = buttons;
         this.ladders = ladders;
         this.doors = doors;
         this.goal = goal;
+        this.shadowDelay = shadowDelay;
         this.playerSpawn = findPlayerSpawn(grid);
+
+    }
+
+    public int getShadowDelay() {
+        
+        return shadowDelay;
     }
 
     private Position findPlayerSpawn(Tile[][] grid) {
