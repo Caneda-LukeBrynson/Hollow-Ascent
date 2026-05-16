@@ -18,18 +18,11 @@ public class LevelLoader {
 
     public static List<Level> loadLevels() {
         List<Level> levels = new ArrayList<>();
-
-        File projectRoot = new File(System.getProperty("user.dir"))
-                .getParentFile()
-                .getParentFile()
-                .getParentFile();
-
-        String basePath = projectRoot.getAbsolutePath() + File.separator;
-        System.out.println("Looking for levels in: " + basePath);
+        String basePath = System.getProperty("user.dir") + File.separator;
 
         levels.add(loadLevel(basePath + "level1.txt", 2));
         levels.add(loadLevel(basePath + "level2.txt", 5));
-        levels.add(loadLevel(basePath + "level3.txt", 5));
+        levels.add(loadLevel(basePath + "level3.txt", 9));
 
         return levels;
     }
@@ -50,6 +43,10 @@ public class LevelLoader {
 
         if (lines.isEmpty()) return null;
 
+        return parseLevel(lines, shadowDelay);
+    }
+
+    private static Level parseLevel(List<String> lines, int shadowDelay) {
         int height = lines.size();
         int width = lines.get(0).length();
 
