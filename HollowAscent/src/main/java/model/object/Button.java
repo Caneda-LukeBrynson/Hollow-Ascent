@@ -16,27 +16,29 @@ public class Button {
 
     }
 
-    public void onStep() {
+    public void update(boolean somoneStanding) {
 
-        pressed = true;
-        if (linkedDoor != null) linkedDoor.close();
+        pressed = somoneStanding;
 
-    }
+        if (linkedDoor != null) {
 
-    public void onRelease() {
+            if (somoneStanding) {
 
-        pressed = false;
+                linkedDoor.close();
 
-        if (linkedDoor != null) linkedDoor.open();
+            } else {
+                
+                linkedDoor.open();
+            }
+        }
 
     }
 
     public void reset() {
 
         pressed = false;
+        if (linkedDoor != null) linkedDoor.open();
 
-        if (linkedDoor != null) 
-        linkedDoor.reset();
     }
 
     public Position getPosition() {
@@ -50,7 +52,7 @@ public class Button {
     }
 
     public Door getLinkedDoor() {
-        
+
         return linkedDoor;
     }
 }
