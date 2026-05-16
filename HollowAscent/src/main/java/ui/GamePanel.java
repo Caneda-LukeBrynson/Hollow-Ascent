@@ -352,7 +352,7 @@ public class GamePanel extends JPanel {
         if (player != null && player.getPosition() != null) {
             Position pos = player.getPosition();
             int px = offsetX + pos.getX() * tileSize;
-            int py = offsetY + pos.getY() * tileSize;
+            int py = offsetY + pos.getY() * tileSize + (tileSize / 2);
             Image img = images.get("PLAYER");
 
             if (img != null) {
@@ -373,7 +373,7 @@ public class GamePanel extends JPanel {
 
             Position pos = shadow.getPosition();
             int px = offsetX + pos.getX() * tileSize;
-            int py = offsetY + pos.getY() * tileSize;
+            int py = offsetY + pos.getY() * tileSize + (tileSize / 2);
             Image img = images.get("SHADOW");
 
             if (img != null) {
