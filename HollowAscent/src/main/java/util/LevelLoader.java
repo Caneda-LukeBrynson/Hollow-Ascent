@@ -17,7 +17,6 @@ import java.util.List;
 public class LevelLoader {
 
     public static List<Level> loadLevels() {
-
         List<Level> levels = new ArrayList<>();
 
         File projectRoot = new File(System.getProperty("user.dir"))
@@ -36,24 +35,20 @@ public class LevelLoader {
     }
 
     public static Level loadLevel(String filename, int shadowDelay) {
-
         List<String> lines = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-
             String line;
             while ((line = reader.readLine()) != null) {
                 lines.add(line);
             }
-
         } catch (IOException e) {
-
             System.err.println("File not found: " + filename);
-            System.err.println("Working directory: " + System.getProperty("user.dir"));
             e.printStackTrace();
             return null;
-
         }
+
+        if (lines.isEmpty()) return null;
 
         int height = lines.size();
         int width = lines.get(0).length();
@@ -62,99 +57,66 @@ public class LevelLoader {
         List<Button> buttons = new ArrayList<>();
         List<Ladder> ladders = new ArrayList<>();
         List<Door> doors = new ArrayList<>();
-
         Goal goal = null;
 
         for (int y = 0; y < height; y++) {
-
             String line = lines.get(y);
-
             for (int x = 0; x < width; x++) {
-                char c = line.charAt(x);
+                char c = (x < line.length()) ? line.charAt(x) : ' ';
                 Tile tile;
-                boolean walkable = true;
 
                 switch (c) {
-
                     case '#':
-                        walkable = false;
-                        tile = new Tile(walkable, "WALL");
+                        tile = new Tile(false, "WALL");
                         break;
-
                     case 'P':
                         tile = new Tile(true, "PLAYER_START");
                         break;
-
                     case 'G':
                         tile = new Tile(true, "GOAL");
                         goal = new Goal(new Position(x, y));
                         break;
-
                     case 'A':
                         tile = new Tile(true, "AREA");
                         break;
-
                     case 'F':
                         tile = new Tile(true, "FLOOR");
                         break;
-
                     case 'L':
                         tile = new Tile(true, "LADDER");
                         break;
-
                     case 'D':
                         tile = new Tile(true, "DOOR");
-                        Door door = new Door(new Position(x, y));
-                        doors.add(door);
+                        doors.add(new Door(new Position(x, y)));
                         break;
-
                     case 'B':
                         tile = new Tile(true, "BUTTON");
                         break;
-
                     default:
                         tile = new Tile(true, "FLOOR");
                         break;
-
                 }
 
                 grid[y][x] = tile;
-
             }
         }
 
         for (int y = 0; y < height; y++) {
-
             String line = lines.get(y);
-
-            for (int x = 0; x < width; x++) {
-                char c = line.charAt(x);
-
-                if (c == 'L') {
-
+            for (int x = 0; x < line.length(); x++) {
+                if (line.charAt(x) == 'L') {
                     Position top = new Position(x, y);
                     Position bottom = findLadderBottom(lines, x, y);
-
-                    if (bottom != null) {
-
-                        ladders.add(new Ladder(top, bottom));
-                    }
+                    ladders.add(new Ladder(top, bottom));
                 }
             }
         }
 
         for (int y = 0; y < height; y++) {
-
             String line = lines.get(y);
-
-            for (int x = 0; x < width; x++) {
-
-                char c = line.charAt(x);
-
-                if (c == 'B') {
-                    Button button = findLinkedButton(new Position(x, y), doors);
-                    buttons.add(button);
-
+            for (int x = 0; x < line.length(); x++) {
+                if (line.charAt(x) == 'B') {
+                    buttons.add(findLinkedButton(new Position(x, y), doors));
                 }
             }
         }
@@ -163,72 +125,26 @@ public class LevelLoader {
     }
 
     private static Position findLadderBottom(List<String> lines, int topX, int topY) {
-
         for (int y = topY + 1; y < lines.size(); y++) {
-
-            if (y >= lines.size()) break;
-
-            char c = lines.get(y).charAt(topX);
-
-            if (c == 'L') {
+            String row = lines.get(y);
+            if (topX < row.length() && row.charAt(topX) == 'L') {
                 return new Position(topX, y);
             }
         }
-
         return new Position(topX, topY + 1);
     }
 
     private static Button findLinkedButton(Position buttonPos, List<Door> doors) {
-
         for (Door door : doors) {
-
             int dx = Math.abs(door.getPosition().getX() - buttonPos.getX());
             int dy = Math.abs(door.getPosition().getY() - buttonPos.getY());
-
-            if (dx <= 2 && dy <= 2) {
-
-                return new Button(buttonPos, door);
-
-            }
+            if (dx <= 2 && dy <= 2) return new Button(buttonPos, door);
         }
-
         return new Button(buttonPos, null);
     }
 
     public static Position getPlayerStart(String filename) {
-
-        File projectRoot = new File(System.getProperty("user.dir"))
-                .getParentFile()
-                .getParentFile()
-                .getParentFile();
-
-        String basePath = projectRoot.getAbsolutePath() + File.separator;
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(basePath + filename))) {
-
-            String line;
-            int y = 0;
-
-            while ((line = reader.readLine()) != null) {
-
-                for (int x = 0; x < line.length(); x++) {
-
-                    if (line.charAt(x) == 'P') {
-
-                        return new Position(x, y);
-                    }
-                }
-
-                y++;
-            }
-
-        } catch (IOException e) {
-
-            System.err.println("Player start file not found: " + basePath + filename);
-            e.printStackTrace();
-
-        }
-        
-        return new Position(1, 1);
+        Level level = loadLevel(filename, 2);
+        return (level != null) ? level.getPlayerSpawn() : new Position(1, 1);
     }
 }
