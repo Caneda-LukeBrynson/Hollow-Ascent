@@ -19,6 +19,13 @@ public class Button {
     public void onStep() {
 
         pressed = true;
+        if (linkedDoor != null) linkedDoor.close();
+
+    }
+
+    public void onRelease() {
+
+        pressed = false;
 
         if (linkedDoor != null) linkedDoor.open();
 
@@ -29,8 +36,7 @@ public class Button {
         pressed = false;
 
         if (linkedDoor != null) 
-            
-            linkedDoor.reset();
+        linkedDoor.reset();
     }
 
     public Position getPosition() {
