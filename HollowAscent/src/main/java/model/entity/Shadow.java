@@ -75,9 +75,13 @@ public class Shadow {
         if (actions.size() >= delayTicks && !active) {
 
             active = true;
+
             position = new Position(startPosition.getX(), startPosition.getY());
+
             currentIndex = 0;
-            lastPlayerActionCount = actions.size() - delayTicks;
+
+            
+            lastPlayerActionCount = actions.size();
 
         }
     }
