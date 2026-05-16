@@ -16,7 +16,7 @@ public class Shadow {
     private int lastPlayerActionCount;
 
     public Shadow(Position position, int delayTicks) {
-
+        
         this.startPosition = new Position(position.getX(), position.getY());
         this.position = new Position(position.getX(), position.getY());
         this.actionsToReplay = new ArrayList<>();
@@ -41,11 +41,14 @@ public class Shadow {
         switch (action) {
 
             case UP:    position = new Position(position.getX(), position.getY() - 1); break;
-            case DOWN:  position = new Position(position.getX(), position.getY() + 1); break;
-            case LEFT:  position = new Position(position.getX() - 1, position.getY()); break;
-            case RIGHT: position = new Position(position.getX() + 1, position.getY()); break;
-            default: break;
 
+            case DOWN:  position = new Position(position.getX(), position.getY() + 1); break;
+
+            case LEFT:  position = new Position(position.getX() - 1, position.getY()); break;
+
+            case RIGHT: position = new Position(position.getX() + 1, position.getY()); break;
+
+            default: break;
         }
     }
 
@@ -55,14 +58,12 @@ public class Shadow {
 
         if (currentPlayerActionCount <= lastPlayerActionCount) return;
 
-        if (currentIndex < delayTicks && currentIndex < actionsToReplay.size()) {
+        if (currentIndex < actionsToReplay.size()) {
 
             PlayerAction action = actionsToReplay.get(currentIndex);
-
             move(action.getType());
             currentIndex++;
             lastPlayerActionCount = currentPlayerActionCount;
-
         }
     }
 
@@ -83,11 +84,18 @@ public class Shadow {
     public void reset() {
 
         position = new Position(startPosition.getX(), startPosition.getY());
+
         active = false;
         currentIndex = 0;
+
         actionsToReplay.clear();
         lastPlayerActionCount = 0;
 
+    }
+
+    public void setDelayTicks(int delayTicks) {
+
+        this.delayTicks = delayTicks;
     }
 
     public boolean isActive() {
@@ -106,7 +114,7 @@ public class Shadow {
     }
 
     public Position getStartPosition() {
-        
+
         return startPosition;
     }
 }
