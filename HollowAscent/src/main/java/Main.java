@@ -50,7 +50,7 @@ public class Main {
                 Position shadowStart = new Position(playerStart.getX(), playerStart.getY());
 
                 Player player = new Player(playerStart);
-                Shadow shadow = new Shadow(shadowStart, Constants.SHADOW_DELAY);
+                Shadow shadow = new Shadow(shadowStart, firstLevel.getShadowDelay());
 
                 Game game = new Game(player, shadow);
                 game.setCurrentLevel(firstLevel);
