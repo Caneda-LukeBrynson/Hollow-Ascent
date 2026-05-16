@@ -70,6 +70,7 @@ public class GameEngine {
             game.getPlayer().clearHistory();
 
             game.getShadow().reset();
+            game.getShadow().setDelayTicks(nextLevel.getShadowDelay());
             game.getShadow().setPosition(new Position(spawnPos.getX(), spawnPos.getY()));
 
             running = true;
