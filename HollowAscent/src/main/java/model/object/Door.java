@@ -2,8 +2,7 @@ package model.object;
 
 import model.Position;
 
-public class Door{
-
+public class Door {
     private Position position;
     private boolean open;
 
@@ -25,13 +24,20 @@ public class Door{
         this.open = false;
 
     }
+
     public boolean isOpen() {
+
         return open;
 
     }
 
     public Position getPosition() {
-        return position;
 
+        return position;
+    }
+
+    public void reset() {
+        
+        this.open = true;
     }
 }
