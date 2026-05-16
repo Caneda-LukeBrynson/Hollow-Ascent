@@ -1,17 +1,16 @@
 package engine;
 
-import model.Level;
-import model.object.Button;
-import model.object.Door;
-import model.PlayerAction;
+import java.util.List;
+import javax.swing.Timer;
 import model.ActionType;
-import model.entity.Player;
-import model.entity.Shadow;
+import model.Level;
+import model.PlayerAction;
 import model.Position;
 import model.Tile;
-import javax.swing.Timer;
-import java.util.ArrayList;
-import java.util.List;
+import model.entity.Player;
+import model.entity.Shadow;
+import model.object.Button;
+import model.object.Door;
 
 public class GameEngine {
     private Game game;
@@ -124,16 +123,18 @@ public class GameEngine {
     }
 
     private boolean isSolidFloor(Level level, int x, int y) {
+        
         if (y < 0 || y >= level.getGrid().length) return true;
         Tile t = level.getTile(x, y);
         if (t == null) return true;
         String type = t.getType();
         if (type.equals("DOOR")) {
             Door door = getDoorAt(level, x, y);
-       
             return door == null || !door.isOpen();
         }
-        return !t.isWalkable() || type.equals("WALL") || type.equals("FLOOR") || type.equals("LADDER") || type.equals("PLAYER_START");
+
+        return !t.isWalkable() || type.equals("WALL") || type.equals("FLOOR") ||
+            type.equals("LADDER") || type.equals("PLAYER_START") || type.equals("BUTTON");
     }
 
     private boolean hasGroundBelow(Level level, Position pos) {
