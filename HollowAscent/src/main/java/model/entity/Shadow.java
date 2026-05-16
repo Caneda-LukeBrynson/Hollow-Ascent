@@ -16,7 +16,7 @@ public class Shadow {
     private int lastPlayerActionCount;
 
     public Shadow(Position position, int delayTicks) {
-        
+
         this.startPosition = new Position(position.getX(), position.getY());
         this.position = new Position(position.getX(), position.getY());
         this.actionsToReplay = new ArrayList<>();
@@ -53,10 +53,11 @@ public class Shadow {
     }
 
     public void update(int currentPlayerActionCount) {
-
         if (!active) return;
 
         if (currentPlayerActionCount <= lastPlayerActionCount) return;
+
+        if (currentIndex >= delayTicks) return;
 
         if (currentIndex < actionsToReplay.size()) {
 
