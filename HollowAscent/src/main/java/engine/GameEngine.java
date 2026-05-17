@@ -12,6 +12,7 @@ import model.Tile;
 import javax.swing.Timer;
 import java.util.List;
 
+
 public class GameEngine {
     private Game game;
     private LevelManager levelManager;
@@ -20,6 +21,7 @@ public class GameEngine {
     private Timer gameTimer;
     private int fallCooldown;
     private int gravityCooldown;
+
 
     public GameEngine(Game game, LevelManager levelManager) {
         this.game = game;
@@ -30,10 +32,12 @@ public class GameEngine {
         this.gravityCooldown = 0;
     }
 
+
     public void start() {
         running = true;
         startGameLoop();
     }
+
 
     public void stop() {
         running = false;
@@ -42,12 +46,14 @@ public class GameEngine {
         }
     }
 
+
     public void restart() {
         running = true;
         if (gameTimer != null && !gameTimer.isRunning()) {
             startGameLoop();
         }
     }
+
 
     private void startGameLoop() {
         gameTimer = new Timer(16, e -> {
@@ -58,6 +64,7 @@ public class GameEngine {
         gameTimer.start();
     }
 
+
     public boolean nextLevel() {
         if (levelManager.hasNextLevel()) {
             Level nextLevel = levelManager.nextLevel();
@@ -65,13 +72,16 @@ public class GameEngine {
             game.setLevelComplete(false);
             game.setGameOver(false);
 
+
             Position spawnPos = nextLevel.getPlayerSpawn();
             game.getPlayer().setPosition(new Position(spawnPos.getX(), spawnPos.getY()));
             game.getPlayer().clearHistory();
 
+
             game.getShadow().reset();
             game.getShadow().setDelayTicks(nextLevel.getShadowDelay());
             game.getShadow().setPosition(new Position(spawnPos.getX(), spawnPos.getY()));
+
 
             running = true;
             return true;
@@ -79,13 +89,16 @@ public class GameEngine {
         return false;
     }
 
+
     private void applyGravity(Player player, Level level) {
         Position pos = player.getPosition();
         if (isOnLadder(level, pos)) return;
 
+
         int x = pos.getX();
         int y = pos.getY();
         int nextY = y + 1;
+
 
         if (nextY < level.getGrid().length && !isSolidFloor(level, x, nextY)) {
             Tile t = level.getTile(x, nextY);
@@ -95,14 +108,17 @@ public class GameEngine {
         }
     }
 
+
     private void applyGravity(Shadow shadow, Level level) {
         if (!shadow.isActive()) return;
         Position pos = shadow.getPosition();
         if (isOnLadder(level, pos)) return;
 
+
         int x = pos.getX();
         int y = pos.getY();
         int nextY = y + 1;
+
 
         if (nextY < level.getGrid().length && !isSolidFloor(level, x, nextY)) {
             Tile t = level.getTile(x, nextY);
@@ -112,6 +128,7 @@ public class GameEngine {
         }
     }
 
+
     private Door getDoorAt(Level level, int x, int y) {
         for (Door door : level.getDoors()) {
             if (door.getPosition().getX() == x && door.getPosition().getY() == y) {
@@ -120,6 +137,7 @@ public class GameEngine {
         }
         return null;
     }
+
 
     private boolean isSolidFloor(Level level, int x, int y) {
         if (y < 0 || y >= level.getGrid().length) return true;
@@ -134,9 +152,11 @@ public class GameEngine {
                type.equals("LADDER") || type.equals("PLAYER_START") || type.equals("BUTTON");
     }
 
+
     private boolean hasGroundBelow(Level level, Position pos) {
         return isSolidFloor(level, pos.getX(), pos.getY() + 1);
     }
+
 
     private boolean isInPit(Level level, Position pos) {
         int x = pos.getX();
@@ -149,12 +169,14 @@ public class GameEngine {
         return below.getType().equals("WALL");
     }
 
+
     private boolean isOnLadder(Level level, Position pos) {
         CollisionManager cm = game.getCollisionManager();
         if (cm.isOutOfBounds(level, pos)) return false;
         Tile t = level.getTile(pos.getX(), pos.getY());
         return t != null && t.getType().equals("LADDER");
     }
+
 
     private boolean isWalkable(Level level, Position pos) {
         CollisionManager cm = game.getCollisionManager();
@@ -168,20 +190,24 @@ public class GameEngine {
         return true;
     }
 
+
     private boolean canMoveHorizontal(Level level, Position from, Position to) {
         return isWalkable(level, to);
     }
+
 
     private boolean canMoveUp(Level level, Position from, Position to) {
         if (!isWalkable(level, to)) return false;
         return isOnLadder(level, from);
     }
 
+
     private boolean canMoveDown(Level level, Position from, Position to) {
         if (!isWalkable(level, to)) return false;
         Tile dest = level.getTile(to.getX(), to.getY());
         return dest != null && dest.getType().equals("LADDER");
     }
+
 
     private boolean canMove(Level level, Position from, ActionType action) {
         Position to = calculateNewPosition(from, action);
@@ -194,8 +220,10 @@ public class GameEngine {
         }
     }
 
+
     public void tick() {
         fallCooldown--;
+
 
         ActionType action = inputHandler.getLastAction();
         if (action != null && fallCooldown <= 0) {
@@ -203,46 +231,56 @@ public class GameEngine {
             Position currentPos = player.getPosition();
             Level level = game.getCurrentLevel();
 
+
             if (canMove(level, currentPos, action)) {
                 Position newPos = calculateNewPosition(currentPos, action);
                 player.setPosition(newPos);
                 player.recordAction(action);
 
+
                 if (level.isGoalReached(newPos)) {
                     game.setLevelComplete(true);
                     running = false;
                 }
-                fallCooldown = 5;
+                fallCooldown = 12;
             }
+
 
             inputHandler.clearAction();
         }
 
+
         Shadow shadow = game.getShadow();
         List<PlayerAction> playerActions = game.getPlayer().getActionHistory();
         Level level = game.getCurrentLevel();
+
 
         Position oldShadowPos = null;
         if (shadow.isActive()) {
             oldShadowPos = new Position(shadow.getPosition().getX(), shadow.getPosition().getY());
         }
 
+
         if (playerActions.size() > 0) {
             shadow.setActionsToReplay(playerActions);
         }
 
+
         shadow.update(playerActions.size());
+
 
         if (shadow.isActive() && oldShadowPos != null) {
             Position newShadowPos = shadow.getPosition();
             if (!oldShadowPos.equals(newShadowPos)) {
-                fallCooldown = 5;
+                fallCooldown = 12;
             }
         }
+
 
         gravityCooldown--;
         if (gravityCooldown <= 0) {
             applyGravity(game.getPlayer(), level);
+
 
             if (!game.isGameOver()) {
                 Position playerPos = game.getPlayer().getPosition();
@@ -252,8 +290,10 @@ public class GameEngine {
                 }
             }
 
+
             Position preFallShadowPos = shadow.isActive() ? shadow.getPosition() : null;
             applyGravity(shadow, level);
+
 
             if (shadow.isActive() && preFallShadowPos != null) {
                 Position postFallShadowPos = shadow.getPosition();
@@ -263,11 +303,14 @@ public class GameEngine {
                 }
             }
 
-            gravityCooldown = 6;
+
+            gravityCooldown = 14;
         }
+
 
         Position playerPos = game.getPlayer().getPosition();
         Position shadowPos = shadow.isActive() ? shadow.getPosition() : null;
+
 
         for (Button button : level.getButtons()) {
             Position btnPos = button.getPosition();
@@ -276,11 +319,13 @@ public class GameEngine {
             button.update(playerOn || shadowOn);
         }
 
+
         if (shadow.isActive() && shadow.getCurrentIndex() > 0 && game.getPlayer().getPosition().equals(shadow.getPosition())) {
             game.setGameOver(true);
             running = false;
         }
     }
+
 
     private Position calculateNewPosition(Position pos, ActionType action) {
         int newX = pos.getX();
@@ -295,17 +340,21 @@ public class GameEngine {
         return new Position(newX, newY);
     }
 
+
     public boolean isRunning() {
         return running;
     }
+
 
     public Game getGame() {
         return game;
     }
 
+
     public InputHandler getInputHandler() {
         return inputHandler;
     }
+
 
     public LevelManager getLevelManager() {
         return levelManager;
