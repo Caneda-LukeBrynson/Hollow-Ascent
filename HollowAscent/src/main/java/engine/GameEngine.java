@@ -80,7 +80,7 @@ public class GameEngine {
 
             game.getShadow().reset();
             game.getShadow().setDelayTicks(nextLevel.getShadowDelay());
-            game.getShadow().setPosition(new Position(spawnPos.getX(), spawnPos.getY()));
+            game.getShadow().setStartPosition(new Position(spawnPos.getX(), spawnPos.getY()));
 
 
             running = true;
@@ -225,6 +225,10 @@ public class GameEngine {
         fallCooldown--;
 
 
+        Position playerPosBefore = game.getPlayer().getPosition();
+        Position shadowPosBefore = game.getShadow().isActive() ? new Position(game.getShadow().getPosition().getX(), game.getShadow().getPosition().getY()) : null;
+
+
         ActionType action = inputHandler.getLastAction();
         if (action != null && fallCooldown <= 0) {
             Player player = game.getPlayer();
@@ -320,9 +324,23 @@ public class GameEngine {
         }
 
 
-        if (shadow.isActive() && shadow.getCurrentIndex() > 0 && game.getPlayer().getPosition().equals(shadow.getPosition())) {
-            game.setGameOver(true);
-            running = false;
+        if (shadow.isActive() && shadow.getCurrentIndex() > 0) {
+            Position playerPosAfter = game.getPlayer().getPosition();
+            Position shadowPosAfter = shadow.getPosition();
+
+
+            boolean sameCell = playerPosAfter.equals(shadowPosAfter);
+
+
+            boolean crossed = shadowPosBefore != null &&
+                    playerPosAfter.getX() == shadowPosBefore.getX() && playerPosAfter.getY() == shadowPosBefore.getY() &&
+                    shadowPosAfter.getX() == playerPosBefore.getX() && shadowPosAfter.getY() == playerPosBefore.getY();
+
+
+            if (sameCell || crossed) {
+                game.setGameOver(true);
+                running = false;
+            }
         }
     }
 
