@@ -1,5 +1,6 @@
 package ui;
 
+
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
@@ -32,18 +33,21 @@ public class GamePanel extends JPanel {
     private GameEngine engine;
     private JButton restartButton;
     private JButton nextLevelButton;
+    private JButton gameCompleteButton;
     private JButton tryAgainButton;
     private JPanel buttonPanel;
+    private Runnable onGameComplete;
 
 
     private Map<String, Image> images = new HashMap<>();
 
 
-    public GamePanel(Game game, GameEngine engine) {
+    public GamePanel(Game game, GameEngine engine, Runnable onGameComplete) {
 
 
         this.game = game;
         this.engine = engine;
+        this.onGameComplete = onGameComplete;
         loadImages();
 
 
@@ -71,6 +75,17 @@ public class GamePanel extends JPanel {
         nextLevelButton.addActionListener(e -> nextLevel());
 
 
+        gameCompleteButton = new JButton("Game Complete!");
+        gameCompleteButton.setFont(new Font("Arial", Font.BOLD, btnFontSize));
+        gameCompleteButton.setBackground(new Color(50, 180, 80));
+        gameCompleteButton.setForeground(Color.WHITE);
+        gameCompleteButton.setOpaque(true);
+        gameCompleteButton.setBorderPainted(false);
+        gameCompleteButton.addActionListener(e -> {
+            if (onGameComplete != null) onGameComplete.run();
+        });
+
+
         tryAgainButton = new JButton("Try Again");
         tryAgainButton.setFont(new Font("Arial", Font.BOLD, btnFontSize));
         tryAgainButton.addActionListener(e -> restartLevel());
@@ -78,6 +93,7 @@ public class GamePanel extends JPanel {
 
         buttonPanel.add(restartButton);
         buttonPanel.add(nextLevelButton);
+        buttonPanel.add(gameCompleteButton);
         buttonPanel.add(tryAgainButton);
 
 
@@ -263,7 +279,11 @@ public class GamePanel extends JPanel {
         if (game.isLevelComplete()) {
 
 
-            nextLevelButton.setVisible(true);
+            boolean isLastLevel = !engine.getLevelManager().hasNextLevel();
+
+
+            nextLevelButton.setVisible(!isLastLevel);
+            gameCompleteButton.setVisible(isLastLevel);
             restartButton.setVisible(true);
             tryAgainButton.setVisible(false);
 
@@ -272,6 +292,7 @@ public class GamePanel extends JPanel {
 
 
             nextLevelButton.setVisible(false);
+            gameCompleteButton.setVisible(false);
             restartButton.setVisible(false);
             tryAgainButton.setVisible(true);
 
@@ -280,6 +301,7 @@ public class GamePanel extends JPanel {
 
 
             nextLevelButton.setVisible(false);
+            gameCompleteButton.setVisible(false);
             restartButton.setVisible(true);
             tryAgainButton.setVisible(false);
 
@@ -567,7 +589,9 @@ public class GamePanel extends JPanel {
 
             g.setColor(new Color(0, 0, 0, 180));
             g.fillRect(0, 0, getWidth(), getHeight());
-            g.setColor(Color.GREEN);
+
+
+            boolean isLastLevel = !engine.getLevelManager().hasNextLevel();
 
 
             int fontSize = Math.max(36, tileSize / 2);
@@ -576,7 +600,8 @@ public class GamePanel extends JPanel {
             g.setFont(new Font("Arial", Font.BOLD, fontSize));
 
 
-            String msg = "LEVEL COMPLETE!";
+            String msg = isLastLevel ? "GAME COMPLETE!" : "LEVEL COMPLETE!";
+            g.setColor(isLastLevel ? new Color(100, 255, 150) : Color.GREEN);
             int tw = g.getFontMetrics().stringWidth(msg);
 
 
@@ -585,7 +610,7 @@ public class GamePanel extends JPanel {
             g.setColor(Color.WHITE);
 
 
-            String sub = "Click 'Next Level' to continue";
+            String sub = isLastLevel ? "Click 'Game Complete!' to finish" : "Click 'Next Level' to continue";
             int sw = g.getFontMetrics().stringWidth(sub);
 
 
