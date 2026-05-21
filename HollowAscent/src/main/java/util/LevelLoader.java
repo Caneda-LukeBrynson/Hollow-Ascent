@@ -18,15 +18,27 @@ public class LevelLoader {
 
     public static List<Level> loadLevels() {
         List<Level> levels = new ArrayList<>();
-        String basePath = System.getProperty("user.dir") + File.separator
-                + "src" + File.separator
-                + "main" + File.separator
-                + "java" + File.separator
-                + "util" + File.separator
-                + "Levels" + File.separator;
 
-        System.out.println("Looking for levels in: " + basePath);
+        String[] baseCandidates = {
+                System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "java" + File.separator + "util" + File.separator + "Levels" + File.separator,
+                System.getProperty("user.dir") + File.separator + "HollowAscent" + File.separator + "src" + File.separator + "main" + File.separator + "java" + File.separator + "util" + File.separator + "Levels" + File.separator
+        };
 
+        String basePath = null;
+        for (String candidate : baseCandidates) {
+            if (new File(candidate + "level1.txt").exists()) {
+                basePath = candidate;
+                break;
+            }
+        }
+
+        if (basePath == null) {
+            System.err.println("Could not find Levels folder. Tried:");
+            for (String c : baseCandidates) System.err.println("  " + c);
+            return levels;
+        }
+
+        System.out.println("Loading levels from: " + basePath);
         levels.add(loadLevel(basePath + "level1.txt", 2));
         levels.add(loadLevel(basePath + "level2.txt", 5));
         levels.add(loadLevel(basePath + "level3.txt", 9));

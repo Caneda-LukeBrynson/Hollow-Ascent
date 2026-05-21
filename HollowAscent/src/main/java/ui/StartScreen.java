@@ -12,7 +12,7 @@ public class StartScreen extends JPanel {
     private final Timer timer;
     private double tick = 0;
 
-    private final ImageIcon background = loadIcon("underworld_background_3.png");
+    private final ImageIcon background = loadIcon("Underworld_background_3.png");
     private final ImageIcon logo = loadIcon("hollow_ascent_logo.png");
     private final ImageIcon platform = loadIcon("platform_large.png");
     private final ImageIcon grim = loadIcon("grim_reaper.gif");
@@ -186,9 +186,18 @@ public class StartScreen extends JPanel {
     }
 
     private static ImageIcon loadIcon(String name) {
+        String[] candidates = {
+                "HollowAscent/assets/" + name,
+                "assets/" + name,
+                "../HollowAscent/assets/" + name,
+                "../assets/" + name
+        };
+        for (String path : candidates) {
+            File f = new File(path);
+            if (f.exists()) return new ImageIcon(f.getAbsolutePath());
+        }
         URL url = StartScreen.class.getResource("/assets/" + name);
         if (url != null) return new ImageIcon(url);
-        File f = new File("src/main/resources/assets/" + name);
-        return f.exists() ? new ImageIcon(f.getPath()) : null;
+        return null;
     }
 }

@@ -145,10 +145,6 @@ public class GameCompleteScreen extends JPanel {
         drawPixelText(g2, "A FINAL REQUIREMENT", cx, y, 22, true, new Color(235, 219, 206));
         y += 34;
         drawPixelText(g2, "FOR OBJECT-ORIENTED PROGRAMMING 2", cx, y, 22, true, new Color(235, 219, 206));
-
-//        y += 62;
-//        drawDivider(g2, cx, y - 22, 300);
-//        drawPixelText(g2, "TO GOD BE THE GLORY", cx, y, 26, true, new Color(255, 112, 15));
     }
 
     private void drawPixelText(Graphics2D g2, String text, int centerX, int baselineY, int size, boolean bold, Color color) {
@@ -279,9 +275,18 @@ public class GameCompleteScreen extends JPanel {
     }
 
     private static ImageIcon loadIcon(String name) {
+        String[] candidates = {
+                "HollowAscent/assets/" + name,
+                "assets/" + name,
+                "../HollowAscent/assets/" + name,
+                "../assets/" + name
+        };
+        for (String path : candidates) {
+            File f = new File(path);
+            if (f.exists()) return new ImageIcon(f.getAbsolutePath());
+        }
         URL url = GameCompleteScreen.class.getResource("/assets/" + name);
         if (url != null) return new ImageIcon(url);
-        File f = new File("src/main/resources/assets/" + name);
-        return f.exists() ? new ImageIcon(f.getPath()) : null;
+        return null;
     }
 }
