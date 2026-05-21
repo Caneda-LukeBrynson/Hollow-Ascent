@@ -18,7 +18,12 @@ public class LevelLoader {
 
     public static List<Level> loadLevels() {
         List<Level> levels = new ArrayList<>();
-        String basePath = System.getProperty("user.dir") + File.separator + "Levels" + File.separator;
+        String basePath = System.getProperty("user.dir") + File.separator
+                + "src" + File.separator
+                + "main" + File.separator
+                + "java" + File.separator
+                + "util" + File.separator
+                + "Levels" + File.separator;
 
         System.out.println("Looking for levels in: " + basePath);
 
