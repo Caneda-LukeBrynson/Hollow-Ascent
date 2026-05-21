@@ -124,7 +124,7 @@ public class GameCompleteScreen extends JPanel {
         String[] devs = {
                 "Docena, Shakira Marie",
                 "Geverola, Flint Harvey",
-                "Cañeda, Luke Brynson",
+                "CaÃ±eda, Luke Brynson",
                 "Alegam, Christian"
         };
         for (String d : devs) {
