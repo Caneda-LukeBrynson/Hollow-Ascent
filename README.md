@@ -48,3 +48,28 @@ Because movement and interactions are fully deterministic, experimentation becom
 <p align="center">
   <img src="https://github.com/user-attachments/assets/95fe7230-b4eb-47a3-afc4-6dda821a2e32" width="950"/>
 </p>
+
+---
+
+# The Team Behind the Underworld
+
+<table>
+  <tr>
+    <td align="center">
+      <b>Docena, Shakira Marie</b><br>
+      <a href="https://github.com/Docena-Shakira">@Docena-Shakira</a>
+    </td>
+    <td align="center">
+      <b>Geverola, Flint Harvey</b><br>
+      <a href="https://github.com/GeverolaFlintHarvey">@GeverolaFlintHarvey</a>
+    </td>
+    <td align="center">
+      <b>Brynson, Luke Cañeda</b><br>
+      <a href="https://github.com/Caneda-LukeBrynson">@Caneda-LukeBrynson</a>
+    </td>
+    <td align="center">
+      <b>Alegam, Christian</b><br>
+      <a href="https://github.com/AlegamChristian">AlegamChristian</a>
+    </td>
+  </tr>
+</table>
