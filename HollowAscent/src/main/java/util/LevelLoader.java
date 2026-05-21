@@ -42,6 +42,9 @@ public class LevelLoader {
         levels.add(loadLevel(basePath + "level1.txt", 2));
         levels.add(loadLevel(basePath + "level2.txt", 5));
         levels.add(loadLevel(basePath + "level3.txt", 9));
+        levels.add(loadLevel(basePath + "level4.txt", 8));
+        levels.add(loadLevel(basePath + "level5.txt", 9));
+
 
         return levels;
     }
@@ -129,6 +132,9 @@ public class LevelLoader {
                     case 'B':
                         tile = new Tile(true, "BUTTON");
                         break;
+                    case 'I':
+                        tile = new Tile(true, "BUTTON");
+                        break;
                     default:
                         tile = new Tile(true, "FLOOR");
                         break;
@@ -153,8 +159,17 @@ public class LevelLoader {
             String line = lines.get(y);
             for (int x = 0; x < line.length(); x++) {
                 if (line.charAt(x) == 'B') {
-                    buttons.add(findLinkedButton(new Position(x, y), doors));
+                    buttons.add(findLinkedButton(new Position(x, y), doors, false));
                 }
+                if (line.charAt(x) == 'I') {
+                    buttons.add(findLinkedButton(new Position(x, y), doors, true));
+                }
+            }
+        }
+
+        for (Button btn : buttons) {
+            if (btn.isInverted() && btn.getLinkedDoor() != null) {
+                btn.getLinkedDoor().close();
             }
         }
 
@@ -171,13 +186,13 @@ public class LevelLoader {
         return new Position(topX, topY + 1);
     }
 
-    private static Button findLinkedButton(Position buttonPos, List<Door> doors) {
+    private static Button findLinkedButton(Position buttonPos, List<Door> doors, boolean inverted) {
         for (Door door : doors) {
             int dx = Math.abs(door.getPosition().getX() - buttonPos.getX());
             int dy = Math.abs(door.getPosition().getY() - buttonPos.getY());
-            if (dx <= 2 && dy <= 2) return new Button(buttonPos, door);
+            if (dx <= 2 && dy <= 2) return new Button(buttonPos, door, inverted);
         }
-        return new Button(buttonPos, null);
+        return new Button(buttonPos, null, inverted);
     }
 
     public static Position getPlayerStart(String filename) {

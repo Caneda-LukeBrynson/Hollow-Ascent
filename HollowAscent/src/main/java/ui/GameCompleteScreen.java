@@ -116,8 +116,6 @@ public class GameCompleteScreen extends JPanel {
         int cx = p.x + p.width / 2;
         int y = p.y + clamp((int)(p.height * 0.21), 128, 158);
 
-        drawPixelText(g2, "- CREDITS -", cx, y, 38, true, new Color(255, 133, 22));
-        y += 58;
 
         drawDivider(g2, cx, y - 16, 300);
         drawPixelText(g2, "DEVELOPERS", cx, y + 8, 24, true, new Color(235, 219, 206));

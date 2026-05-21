@@ -6,8 +6,13 @@ import javax.swing.JButton;
 import javax.swing.ImageIcon;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GradientPaint;
+import java.awt.BasicStroke;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
@@ -53,19 +58,16 @@ public class GamePanel extends JPanel {
     private JButton nextLevelButton;
     private JButton gameCompleteButton;
     private JButton tryAgainButton;
-    private JPanel buttonPanel;
 
     // ─── Move History UI ────────────────────────────────────────────────────────
     private JPanel moveTrackPanel;
 
     // ─── Image Cache ────────────────────────────────────────────────────────────
-    // All game sprites and UI images are loaded once and stored here by key
     private Map<String, Image> images = new HashMap<>();
 
 
     // ════════════════════════════════════════════════════════════════════════════
     // CONSTRUCTOR
-    // Sets up the panel, loads assets, builds the south UI (move track + buttons)
     // ════════════════════════════════════════════════════════════════════════════
     public GamePanel(Game game, GameEngine engine, Runnable onGameComplete) {
         this.game = game;
@@ -79,10 +81,29 @@ public class GamePanel extends JPanel {
         requestFocusInWindow();
         setPreferredSize(new java.awt.Dimension(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT));
         setBackground(Color.BLACK);
-        setLayout(new BorderLayout());
+        setLayout(null);
 
-        buildButtonPanel();
-        buildSouthPanel();
+        restartButton = createInfernoButton("RESTART");
+        restartButton.addActionListener(e -> restartLevel());
+
+        nextLevelButton = createInfernoButton("NEXT LEVEL");
+        nextLevelButton.addActionListener(e -> nextLevel());
+
+        gameCompleteButton = createInfernoButton("CREDITS");
+        gameCompleteButton.addActionListener(e -> {
+            if (onGameComplete != null) onGameComplete.run();
+        });
+
+        tryAgainButton = createInfernoButton("TRY AGAIN");
+        tryAgainButton.addActionListener(e -> restartLevel());
+
+        add(restartButton);
+        add(nextLevelButton);
+        add(gameCompleteButton);
+        add(tryAgainButton);
+
+        moveTrackPanel = createMoveTrack();
+        add(moveTrackPanel);
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -99,67 +120,7 @@ public class GamePanel extends JPanel {
     // UI CONSTRUCTION
     // ════════════════════════════════════════════════════════════════════════════
 
-    /** Builds the Restart / Next Level / Game Complete / Try Again button row. */
-    private void buildButtonPanel() {
-        buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonPanel.setOpaque(false);
-
-        int btnFontSize = Math.max(14, Constants.TILE_SIZE / 5);
-
-        restartButton = new JButton("Restart Level");
-        restartButton.setFont(new Font("Arial", Font.BOLD, btnFontSize));
-        restartButton.addActionListener(e -> restartLevel());
-
-        nextLevelButton = new JButton("Next Level");
-        nextLevelButton.setFont(new Font("Arial", Font.BOLD, btnFontSize));
-        nextLevelButton.addActionListener(e -> nextLevel());
-
-        gameCompleteButton = new JButton("Game Complete!");
-        gameCompleteButton.setFont(new Font("Arial", Font.BOLD, btnFontSize));
-        gameCompleteButton.setBackground(new Color(50, 180, 80));
-        gameCompleteButton.setForeground(Color.WHITE);
-        gameCompleteButton.setOpaque(true);
-        gameCompleteButton.setBorderPainted(false);
-        gameCompleteButton.addActionListener(e -> {
-            if (onGameComplete != null) onGameComplete.run();
-        });
-
-        tryAgainButton = new JButton("Try Again");
-        tryAgainButton.setFont(new Font("Arial", Font.BOLD, btnFontSize));
-        tryAgainButton.addActionListener(e -> restartLevel());
-
-        buttonPanel.add(restartButton);
-        buttonPanel.add(nextLevelButton);
-        buttonPanel.add(gameCompleteButton);
-        buttonPanel.add(tryAgainButton);
-    }
-
-    /**
-     * Builds the south area containing the move track panel (above)
-     * and the button panel (below), and adds it to the BorderLayout SOUTH.
-     */
-    private void buildSouthPanel() {
-        moveTrackPanel = createMoveTrack();
-
-        JPanel moveTrackWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
-        moveTrackWrapper.setOpaque(false);
-        moveTrackWrapper.add(moveTrackPanel);
-
-        JPanel southPanel = new JPanel();
-        southPanel.setLayout(new javax.swing.BoxLayout(southPanel, javax.swing.BoxLayout.Y_AXIS));
-        southPanel.setOpaque(false);
-        southPanel.add(moveTrackWrapper);
-        southPanel.add(buttonPanel);
-
-        add(southPanel, BorderLayout.SOUTH);
-    }
-
-    /**
-     * Creates the move history track panel.
-     * Displays one sprite per available move (based on shadowDelay).
-     * Filled slots show the direction arrow image; empty slots show the default sprite.
-     * Auto-sizes its width based on the current level's move count.
-     */
+    /** Creates the move history track panel. */
     private JPanel createMoveTrack() {
         JPanel panel = new JPanel() {
             @Override
@@ -177,16 +138,13 @@ public class GamePanel extends JPanel {
 
                 for (int i = 0; i < maxMoves; i++) {
                     int dx = startX + i * (dotSize + dotGap);
-
                     if (i < history.size()) {
-                        // Draw the direction arrow for recorded moves
                         String arrowKey = getArrowKey(history.get(i).getType());
                         Image arrowImg = images.get(arrowKey);
                         if (arrowImg != null) {
                             g.drawImage(arrowImg, dx, dotY, dotSize, dotSize, this);
                         }
                     } else {
-                        // Draw the empty slot sprite for unused moves
                         Image slotImg = images.get("SLOT_EMPTY");
                         if (slotImg != null) {
                             g.drawImage(slotImg, dx, dotY, dotSize, dotSize, this);
@@ -219,6 +177,105 @@ public class GamePanel extends JPanel {
             case RIGHT: return "ARROW_RIGHT";
             default:    return "";
         }
+    }
+
+    /** Positions all action buttons and move track relative to current panel size. */
+    private void positionActionButtons() {
+        int panelWidth = Math.min(760, getWidth() - 120);
+        int panelHeight = 390;
+        int panelX = getWidth() / 2 - panelWidth / 2;
+        int panelY = getHeight() / 2 - panelHeight / 2;
+        int buttonHeight = 70;
+
+        restartButton.setBounds(24, 24, 230, 56);
+        nextLevelButton.setBounds(panelX + panelWidth / 2 + 20, panelY + panelHeight - 100, 300, buttonHeight);
+        gameCompleteButton.setBounds(panelX + panelWidth / 2 + 20, panelY + panelHeight - 100, 300, buttonHeight);
+        tryAgainButton.setBounds(getWidth() / 2 - 150, panelY + panelHeight - 100, 300, buttonHeight);
+
+        if (game.isLevelComplete()) {
+            restartButton.setBounds(panelX + panelWidth / 2 - 320, panelY + panelHeight - 100, 230, buttonHeight);
+        }
+
+        if (moveTrackPanel != null && game.getCurrentLevel() != null) {
+            java.awt.Dimension ps = moveTrackPanel.getPreferredSize();
+            int tx = (getWidth() - ps.width) / 2;
+            int ty = getHeight() - ps.height - 12;
+            moveTrackPanel.setBounds(tx, ty, ps.width, ps.height);
+        }
+    }
+
+    /** Creates a styled inferno-themed button. */
+    private JButton createInfernoButton(String text) {
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+
+                Color top = getModel().isPressed() ? new Color(38, 6, 8) : new Color(24, 6, 12);
+                Color bottom = getModel().isPressed() ? new Color(75, 18, 8) : new Color(48, 12, 10);
+                Color edge = getModel().isRollover() ? new Color(255, 164, 36) : new Color(255, 93, 0);
+
+                int[] xs = {18, getWidth() - 18, getWidth() - 2, getWidth() - 18, 18, 2};
+                int[] ys = {5, 5, getHeight() / 2, getHeight() - 6, getHeight() - 6, getHeight() / 2};
+
+                g2.setColor(new Color(0, 0, 0, 160));
+                g2.fillPolygon(new int[]{xs[0]+5,xs[1]+5,xs[2]+5,xs[3]+5,xs[4]+5,xs[5]+5},
+                        new int[]{ys[0]+7,ys[1]+7,ys[2]+7,ys[3]+7,ys[4]+7,ys[5]+7}, 6);
+
+                g2.setPaint(new GradientPaint(0, 0, top, 0, getHeight(), bottom));
+                g2.fillPolygon(xs, ys, 6);
+
+                g2.setStroke(new BasicStroke(3));
+                g2.setColor(edge);
+                g2.drawPolygon(xs, ys, 6);
+
+                g2.setStroke(new BasicStroke(1));
+                g2.setColor(new Color(130, 45, 80));
+                g2.drawLine(34, 17, getWidth() - 34, 17);
+                g2.drawLine(34, getHeight() - 18, getWidth() - 34, getHeight() - 18);
+
+                g2.setFont(titleFont(20));
+                FontMetrics fm = g2.getFontMetrics();
+                int tx = (getWidth() - fm.stringWidth(getText())) / 2;
+                int ty = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
+                g2.setColor(new Color(52, 7, 0));
+                g2.drawString(getText(), tx + 2, ty + 2);
+                g2.setColor(new Color(255, 184, 78));
+                g2.drawString(getText(), tx, ty);
+                g2.dispose();
+            }
+        };
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setOpaque(false);
+        button.setForeground(new Color(255, 184, 78));
+        return button;
+    }
+
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // FONT HELPERS
+    // ════════════════════════════════════════════════════════════════════════════
+
+    private Font titleFont(int size) {
+        String[] preferred = {"Copperplate Gothic Bold", "Georgia", "Palatino Linotype", "Cambria", "Serif"};
+        for (String name : preferred) {
+            Font font = new Font(name, Font.BOLD, size);
+            if (font.canDisplay('A')) return font;
+        }
+        return new Font(Font.SERIF, Font.BOLD, size);
+    }
+
+    private Font bodyFont(int size) {
+        String[] preferred = {"Georgia", "Palatino Linotype", "Cambria", "Serif"};
+        for (String name : preferred) {
+            Font font = new Font(name, Font.BOLD, size);
+            if (font.canDisplay('A')) return font;
+        }
+        return new Font(Font.SERIF, Font.BOLD, size);
     }
 
 
@@ -278,11 +335,13 @@ public class GamePanel extends JPanel {
         loadGif("BUTTON_ON",     "button_on.gif");
         loadGif("PLAYER",        "player.gif");
         loadGif("SHADOW",        "shadow.gif");
+        loadGif("GRIM_REAPER",   "grim_reaper.gif");
+        loadGif("GHOST",         "a_human_ghost_that_is_floating_wiggling_tail_same_expression_unknown.gif");
     }
 
     /**
-     * Resolves the assets directory by searching common relative paths
-     * from the class file location. Falls back to "assets" in the working dir.
+     * Resolves the assets directory by searching common relative paths.
+     * Falls back to "assets" in the working dir.
      */
     private File resolveAssets() {
         try {
@@ -312,10 +371,7 @@ public class GamePanel extends JPanel {
     // AUDIO
     // ════════════════════════════════════════════════════════════════════════════
 
-    /**
-     * Loads and plays a WAV file on loop at 50% volume.
-     * Uses the same asset resolution as images.
-     */
+    /** Loads and plays a WAV file on loop at 50% volume. */
     private void playMusic(String filename) {
         try {
             File file = new File(resolveAssets(), filename);
@@ -362,7 +418,7 @@ public class GamePanel extends JPanel {
 
         engine.restart();
         updateButtons();
-        moveTrackPanel.revalidate();
+        if (moveTrackPanel != null) moveTrackPanel.revalidate();
         repaint();
         requestFocusInWindow();
     }
@@ -375,7 +431,7 @@ public class GamePanel extends JPanel {
             game.setGameOver(false);
             engine.restart();
             updateButtons();
-            moveTrackPanel.revalidate();
+            if (moveTrackPanel != null) moveTrackPanel.revalidate();
             repaint();
         }
         requestFocusInWindow();
@@ -384,8 +440,8 @@ public class GamePanel extends JPanel {
 
     // ════════════════════════════════════════════════════════════════════════════
     // BUTTON VISIBILITY
-    // Shows/hides the correct buttons depending on game state
     // ════════════════════════════════════════════════════════════════════════════
+
     public void updateButtons() {
         if (game.isLevelComplete()) {
             boolean isLastLevel = !engine.getLevelManager().hasNextLevel();
@@ -404,6 +460,7 @@ public class GamePanel extends JPanel {
             restartButton.setVisible(true);
             tryAgainButton.setVisible(false);
         }
+        positionActionButtons();
     }
 
     /** Called by the render timer each frame to refresh UI. */
@@ -430,7 +487,6 @@ public class GamePanel extends JPanel {
             return;
         }
 
-        // Calculate tile size and grid offset to center the level on screen
         Tile[][] grid = level.getGrid();
         int gridRows = grid.length;
         int gridCols = grid[0].length;
@@ -522,7 +578,7 @@ public class GamePanel extends JPanel {
                         break;
                     }
                     case "BUTTON":
-                        break; // drawn after player/shadow
+                        break;
                     default:
                         break;
                 }
@@ -584,7 +640,6 @@ public class GamePanel extends JPanel {
 
     /**
      * Draws button tiles on top of the player and shadow.
-     * Buttons are drawn last so they visually appear above entities.
      */
     private void drawButtons(Graphics g, Tile[][] grid, int gridRows, int gridCols,
                              int tileSize, int offsetX, int offsetY, Level level) {
@@ -613,8 +668,7 @@ public class GamePanel extends JPanel {
     }
 
     /**
-     * Draws the "Shadow appears in X moves" warning banner at the top of the screen.
-     * Only shown while the shadow has not yet appeared.
+     * Draws the shadow warning banner at the top of the screen.
      */
     private void drawShadowWarning(Graphics g, int tileSize) {
         Shadow shadow = game.getShadow();
@@ -624,54 +678,168 @@ public class GamePanel extends JPanel {
         int movesRemaining = game.getCurrentLevel().getShadowDelay() - movesMade;
         if (movesRemaining <= 0) return;
 
-        String warning = "Shadow appears in: " + movesRemaining + " move" + (movesRemaining == 1 ? "" : "s");
-        int fontSize = Math.max(18, tileSize / 4);
-        g.setFont(new Font("Arial", Font.BOLD, fontSize));
-        g.setColor(new Color(180, 0, 180));
-        int textWidth = g.getFontMetrics().stringWidth(warning);
-        int cx = getWidth() / 2;
-        g.fillRoundRect(cx - textWidth / 2 - 10, 10, textWidth + 20, fontSize + 14, 8, 8);
-        g.setColor(Color.WHITE);
-        g.drawString(warning, cx - textWidth / 2, fontSize + 10);
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+
+        String line1 = "REAPER APPROACHES";
+        String line2 = "IN  " + movesRemaining + (movesRemaining == 1 ? "  MOVE" : "  MOVES");
+
+        Font f1 = titleFont(18);
+        Font f2 = titleFont(26);
+
+        g2.setFont(f2);
+        int w2 = g2.getFontMetrics().stringWidth(line2);
+        g2.setFont(f1);
+        int w1 = g2.getFontMetrics().stringWidth(line1);
+
+        int panelW = Math.max(w1, w2) + 48;
+        int panelH = 88;
+        int panelX = getWidth() - panelW - 24;
+        int panelY = 16;
+
+        // inferno panel background
+        g2.setColor(new Color(0, 0, 0, 155));
+        g2.fillRoundRect(panelX + 6, panelY + 7, panelW, panelH, 16, 16);
+        g2.setPaint(new java.awt.GradientPaint(panelX, panelY, new Color(14, 0, 11, 220), panelX, panelY + panelH, new Color(42, 8, 8, 215)));
+        g2.fillRoundRect(panelX, panelY, panelW, panelH, 16, 16);
+        g2.setStroke(new BasicStroke(2));
+        g2.setColor(new Color(255, 94, 0));
+        g2.drawRoundRect(panelX, panelY, panelW, panelH, 16, 16);
+        g2.setStroke(new BasicStroke(1));
+        g2.setColor(new Color(128, 45, 86));
+        g2.drawRoundRect(panelX + 6, panelY + 6, panelW - 12, panelH - 12, 10, 10);
+
+        // text
+        int cx = panelX + panelW / 2;
+        g2.setFont(f1);
+        FontMetrics fm1 = g2.getFontMetrics();
+        g2.setColor(new Color(30, 0, 0, 180));
+        g2.drawString(line1, cx - fm1.stringWidth(line1) / 2 + 2, panelY + 32 + 2);
+        g2.setColor(new Color(235, 219, 206));
+        g2.drawString(line1, cx - fm1.stringWidth(line1) / 2, panelY + 32);
+
+        g2.setFont(f2);
+        FontMetrics fm2 = g2.getFontMetrics();
+        g2.setColor(new Color(52, 7, 0, 180));
+        g2.drawString(line2, cx - fm2.stringWidth(line2) / 2 + 2, panelY + 66 + 2);
+        g2.setColor(new Color(255, 145, 25));
+        g2.drawString(line2, cx - fm2.stringWidth(line2) / 2, panelY + 66);
+
+        g2.dispose();
     }
 
-    /** Draws the semi-transparent GAME OVER overlay when the player loses. */
+    /** Draws the inferno-styled GAME OVER overlay. */
     private void drawGameOverOverlay(Graphics g, int tileSize) {
         if (!game.isGameOver()) return;
 
-        g.setColor(new Color(0, 0, 0, 180));
-        g.fillRect(0, 0, getWidth(), getHeight());
-        g.setColor(Color.RED);
-        int fontSize = Math.max(48, tileSize / 2);
-        g.setFont(new Font("Arial", Font.BOLD, fontSize));
-        String msg = "GAME OVER";
-        int tw = g.getFontMetrics().stringWidth(msg);
-        g.drawString(msg, getWidth() / 2 - tw / 2, getHeight() / 2 - fontSize / 2);
-        g.setFont(new Font("Arial", Font.BOLD, fontSize / 2));
-        g.setColor(Color.WHITE);
-        String sub = "Click 'Try Again' to restart";
-        int sw = g.getFontMetrics().stringWidth(sub);
-        g.drawString(sub, getWidth() / 2 - sw / 2, getHeight() / 2 + fontSize / 2);
+        positionActionButtons();
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+
+        g2.setColor(new Color(0, 0, 0, 170));
+        g2.fillRect(0, 0, getWidth(), getHeight());
+
+        int panelWidth = Math.min(760, getWidth() - 120);
+        int panelHeight = 390;
+        int panelX = getWidth() / 2 - panelWidth / 2;
+        int panelY = getHeight() / 2 - panelHeight / 2;
+        drawInfernoPanel(g2, panelX, panelY, panelWidth, panelHeight);
+
+        Image reaper = images.get("GRIM_REAPER");
+        if (reaper != null) {
+            g2.drawImage(reaper, panelX + 52, panelY + 138, 170, 170, this);
+        }
+
+        drawCenteredText(g2, "THE ASCENT ENDS", panelY + 82, titleFont(46),
+                new Color(255, 116, 22), new Color(45, 0, 0));
+        drawCenteredText(g2, "The underworld has claimed your run.", panelY + 148, bodyFont(22),
+                new Color(238, 222, 210), new Color(35, 0, 0));
+        drawCenteredText(g2, "Gather yourself. Return to the climb.", panelY + 184, bodyFont(18),
+                new Color(255, 174, 78), new Color(35, 0, 0));
+        drawLavaDivider(g2, panelX + 250, panelY + 228, panelWidth - 500);
+
+        g2.dispose();
     }
 
-    /** Draws the LEVEL COMPLETE or GAME COMPLETE overlay when the player wins. */
+    /** Draws the inferno-styled LEVEL COMPLETE / GAME COMPLETE overlay. */
     private void drawLevelCompleteOverlay(Graphics g, int tileSize) {
         if (!game.isLevelComplete()) return;
 
-        g.setColor(new Color(0, 0, 0, 180));
-        g.fillRect(0, 0, getWidth(), getHeight());
+        positionActionButtons();
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRect(0, 0, getWidth(), getHeight());
+
         boolean isLastLevel = !engine.getLevelManager().hasNextLevel();
-        int fontSize = Math.max(36, tileSize / 2);
-        g.setFont(new Font("Arial", Font.BOLD, fontSize));
-        String msg = isLastLevel ? "GAME COMPLETE!" : "LEVEL COMPLETE!";
-        g.setColor(isLastLevel ? new Color(100, 255, 150) : Color.GREEN);
-        int tw = g.getFontMetrics().stringWidth(msg);
-        g.drawString(msg, getWidth() / 2 - tw / 2, getHeight() / 2 - fontSize / 2);
-        g.setFont(new Font("Arial", Font.BOLD, fontSize / 2));
-        g.setColor(Color.WHITE);
-        String sub = isLastLevel ? "Click 'Game Complete!' to finish" : "Click 'Next Level' to continue";
-        int sw = g.getFontMetrics().stringWidth(sub);
-        g.drawString(sub, getWidth() / 2 - sw / 2, getHeight() / 2 + fontSize / 2);
+
+        int panelWidth = Math.min(760, getWidth() - 120);
+        int panelHeight = 390;
+        int panelX = getWidth() / 2 - panelWidth / 2;
+        int panelY = getHeight() / 2 - panelHeight / 2;
+
+        drawInfernoPanel(g2, panelX, panelY, panelWidth, panelHeight);
+
+        Image ghost = images.get("GHOST");
+        if (ghost != null) {
+            g2.drawImage(ghost, panelX + panelWidth - 158, panelY + 132, 112, 112, this);
+        }
+
+        String msg = isLastLevel ? "GAME COMPLETE" : "LEVEL COMPLETE";
+        drawCenteredText(g2, msg, panelY + 82, titleFont(46),
+                new Color(255, 145, 25), new Color(65, 8, 0));
+        drawLavaDivider(g2, panelX + 165, panelY + 116, panelWidth - 330);
+
+        String sub = isLastLevel ? "The final gate opens." : "The gate opens. Continue your ascent.";
+        drawCenteredText(g2, sub, panelY + 168, bodyFont(22),
+                new Color(238, 222, 210), new Color(35, 0, 0));
+
+        String prompt = isLastLevel ? "Enter the credits below." : "Step forward into the next trial.";
+        drawCenteredText(g2, prompt, panelY + 205, bodyFont(18),
+                new Color(255, 174, 78), new Color(35, 0, 0));
+        drawLavaDivider(g2, panelX + 250, panelY + 248, panelWidth - 500);
+
+        g2.dispose();
+    }
+
+    /** Draws the inferno-styled dark panel background. */
+    private void drawInfernoPanel(Graphics2D g2, int x, int y, int w, int h) {
+        g2.setColor(new Color(0, 0, 0, 155));
+        g2.fillRoundRect(x + 12, y + 14, w, h, 22, 22);
+        g2.setPaint(new GradientPaint(x, y, new Color(14, 0, 11, 238), x, y + h, new Color(42, 8, 8, 235)));
+        g2.fillRoundRect(x, y, w, h, 22, 22);
+        g2.setStroke(new BasicStroke(4));
+        g2.setColor(new Color(255, 94, 0));
+        g2.drawRoundRect(x, y, w, h, 22, 22);
+        g2.setStroke(new BasicStroke(1));
+        g2.setColor(new Color(128, 45, 86));
+        g2.drawRoundRect(x + 12, y + 12, w - 24, h - 24, 16, 16);
+    }
+
+    /** Draws a lava-styled divider line with a glowing center diamond. */
+    private void drawLavaDivider(Graphics2D g2, int x, int y, int w) {
+        g2.setStroke(new BasicStroke(2));
+        g2.setColor(new Color(116, 40, 82, 180));
+        g2.drawLine(x, y, x + w, y);
+        g2.setColor(new Color(255, 94, 0, 190));
+        g2.fillRect(x + w / 2 - 4, y - 4, 8, 8);
+        g2.setColor(new Color(255, 180, 55, 160));
+        g2.drawLine(x + 18, y + 5, x + w - 18, y + 5);
+    }
+
+    /** Draws centered text with a drop shadow. */
+    private void drawCenteredText(Graphics2D g2, String text, int baselineY, Font font, Color fill, Color shadow) {
+        g2.setFont(font);
+        FontMetrics fm = g2.getFontMetrics();
+        int x = getWidth() / 2 - fm.stringWidth(text) / 2;
+        g2.setColor(shadow);
+        g2.drawString(text, x + 3, baselineY + 3);
+        g2.setColor(fill);
+        g2.drawString(text, x, baselineY);
     }
 
     /**

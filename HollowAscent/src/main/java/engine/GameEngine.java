@@ -259,7 +259,7 @@ public class GameEngine {
                     game.setLevelComplete(true);
                     running = false;
                 }
-                fallCooldown = 12;
+                fallCooldown = 14;
             }
 
             inputHandler.clearAction();
@@ -283,7 +283,7 @@ public class GameEngine {
         if (shadow.isActive() && oldShadowPos != null) {
             Position newShadowPos = shadow.getPosition();
             if (!oldShadowPos.equals(newShadowPos)) {
-                fallCooldown = 12;
+                fallCooldown = 14;
             }
         }
 
