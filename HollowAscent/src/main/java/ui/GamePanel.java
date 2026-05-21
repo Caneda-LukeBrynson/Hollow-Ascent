@@ -798,7 +798,7 @@ public class GamePanel extends JPanel {
         drawCenteredText(g2, sub, panelY + 168, bodyFont(22),
                 new Color(238, 222, 210), new Color(35, 0, 0));
 
-        String prompt = isLastLevel ? "Enter the credits below." : "Step forward into the next trial.";
+        String prompt = isLastLevel ? "Meet the team Behind the Underworld" : "Step forward into the next trial.";
         drawCenteredText(g2, prompt, panelY + 205, bodyFont(18),
                 new Color(255, 174, 78), new Color(35, 0, 0));
         drawLavaDivider(g2, panelX + 250, panelY + 248, panelWidth - 500);

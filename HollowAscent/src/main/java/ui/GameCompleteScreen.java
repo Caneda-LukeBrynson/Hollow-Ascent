@@ -136,7 +136,7 @@ public class GameCompleteScreen extends JPanel {
         drawDivider(g2, cx, y - 15, 300);
         drawPixelText(g2, "SPECIAL THANKS", cx, y + 10, 25, true, new Color(235, 219, 206));
         y += 66;
-        drawPixelText(g2, "Sir Chowchow", cx, y, 24, false, new Color(255, 126, 20));
+        drawPixelText(g2, "Sir John Quinnvic Taboada", cx, y, 24, false, new Color(255, 126, 20));
 
         y += 62;
         drawDivider(g2, cx, y - 22, 300);
