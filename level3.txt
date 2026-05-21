@@ -1,9 +1,9 @@
 ##########
 #AAAAAAAA#
-#AAAAAAAF#
-#AAALFAAF#
-#AALFFAAA#
-#PLFFAAAA#
-#FFAGALAA#
-#AAAFDFBA#
+#AAAAAAA=#
+#AAA{]AA=#
+#AA{-]AAA#
+#P{-]AAAA#
+#[]AGA|BA#
+#AAA[D-]A#
 ##########

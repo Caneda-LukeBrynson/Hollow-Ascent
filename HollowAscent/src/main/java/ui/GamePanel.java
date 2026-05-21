@@ -268,6 +268,9 @@ public class GamePanel extends JPanel {
         loadGif("TUNNEL",        "Tunnel.gif");
         loadGif("GOAL",          "Goal.gif");
         loadGif("LADDER_P",      "ladder_plat.gif");
+        loadGif("LADDER_L",      "ladder_l.gif");
+        loadGif("LADDER_R",      "ladder_r.gif");
+        loadGif("LADDER_S",      "ladder_s.gif");
         loadGif("LADDER",        "ladder.gif");
         loadGif("DOOR_CLOSED",   "door_closed.gif");
         loadGif("DOOR_OPENED",   "door_opened.gif");
@@ -493,6 +496,15 @@ public class GamePanel extends JPanel {
                         break;
                     case "LADDER_P":
                         drawTile(g, "LADDER_P", px, py, tileSize, new Color(139, 69, 19));
+                        break;
+                    case "LADDER_L":
+                        drawTile(g, "LADDER_L", px, py, tileSize, new Color(139, 69, 19));
+                        break;
+                    case "LADDER_R":
+                        drawTile(g, "LADDER_R", px, py, tileSize, new Color(139, 69, 19));
+                        break;
+                    case "LADDER_S":
+                        drawTile(g, "LADDER_S", px, py, tileSize, new Color(139, 69, 19));
                         break;
                     case "LADDER":
                         drawTile(g, "LADDER", px, py, tileSize, new Color(139, 69, 19));

@@ -94,6 +94,15 @@ public class LevelLoader {
                     case 'L':
                         tile = new Tile(true, "LADDER");
                         break;
+                    case '{':
+                        tile = new Tile(true, "LADDER_L");
+                        break;
+                    case '}':
+                        tile = new Tile(true, "LADDER_R");
+                        break;
+                    case '|':
+                        tile = new Tile(true, "LADDER_S");
+                        break;
                     case 'D':
                         tile = new Tile(true, "DOOR");
                         doors.add(new Door(new Position(x, y)));

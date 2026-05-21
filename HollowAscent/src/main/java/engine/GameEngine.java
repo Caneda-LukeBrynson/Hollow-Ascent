@@ -149,7 +149,8 @@ public class GameEngine {
                 type.equals("FLOOR_L") || type.equals("FLOOR_R") ||
                 type.equals("FLOOR_C") || type.equals("FLOOR_S") ||
                 type.equals("LADDER") || type.equals("LADDER_P") ||
-                type.equals("PLAYER_START");
+                type.equals("LADDER_L") || type.equals("LADDER_R") ||
+                type.equals("LADDER_S") || type.equals("PLAYER_START");
     }
 
 
@@ -174,7 +175,9 @@ public class GameEngine {
         CollisionManager cm = game.getCollisionManager();
         if (cm.isOutOfBounds(level, pos)) return false;
         Tile t = level.getTile(pos.getX(), pos.getY());
-        return t != null && (t.getType().equals("LADDER") || t.getType().equals("LADDER_P"));
+        return t != null && (t.getType().equals("LADDER") || t.getType().equals("LADDER_P") ||
+                t.getType().equals("LADDER_L") || t.getType().equals("LADDER_R") ||
+                t.getType().equals("LADDER_S"));
     }
 
 
