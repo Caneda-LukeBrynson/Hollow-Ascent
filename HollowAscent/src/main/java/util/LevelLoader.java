@@ -76,8 +76,20 @@ public class LevelLoader {
                     case 'A':
                         tile = new Tile(true, "AREA");
                         break;
-                    case 'F':
-                        tile = new Tile(true, "FLOOR");
+                    case '[':
+                        tile = new Tile(true, "FLOOR_L");
+                        break;
+                    case ']':
+                        tile = new Tile(true, "FLOOR_R");
+                        break;
+                    case '-':
+                        tile = new Tile(true, "FLOOR_C");
+                        break;
+                    case '=':
+                        tile = new Tile(true, "FLOOR_S");
+                        break;
+                    case 'O':
+                        tile = new Tile(true, "LADDER_P");
                         break;
                     case 'L':
                         tile = new Tile(true, "LADDER");
