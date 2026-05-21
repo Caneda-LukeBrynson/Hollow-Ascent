@@ -201,14 +201,24 @@ public class GameEngine {
 
     private boolean canMoveUp(Level level, Position from, Position to) {
         if (!isWalkable(level, to)) return false;
-        return isOnLadder(level, from);
+        if (isOnLadder(level, from)) return true;
+        Tile dest = level.getTile(to.getX(), to.getY());
+        if (dest == null) return false;
+        String type = dest.getType();
+        return type.equals("LADDER") || type.equals("LADDER_P") ||
+                type.equals("LADDER_L") || type.equals("LADDER_R") ||
+                type.equals("LADDER_S");
     }
 
 
     private boolean canMoveDown(Level level, Position from, Position to) {
         if (!isWalkable(level, to)) return false;
         Tile dest = level.getTile(to.getX(), to.getY());
-        return dest != null && (dest.getType().equals("LADDER") || dest.getType().equals("LADDER_P"));
+        if (dest == null) return false;
+        String type = dest.getType();
+        return type.equals("LADDER") || type.equals("LADDER_P") ||
+                type.equals("LADDER_L") || type.equals("LADDER_R") ||
+                type.equals("LADDER_S");
     }
 
 
